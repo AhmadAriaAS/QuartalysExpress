@@ -1,0 +1,37 @@
+{
+  "chats": [
+    {
+      "id": "1025342735143682108",
+      "author_di": "591622658177630210",
+      "author_username": "TereZa",
+      "content": "test 1",
+      "createAt": 1664531158819,
+      "type": 0,
+      "isEdited": false,
+      "isDeleted": false
+    },
+    {
+      "id": "1025342752411627560",
+      "author_di": "591622658177630210",
+      "author_username": "TereZa",
+      "content": "test 2",
+      "createAt": 1664531162836,
+      "type": 0,
+      "isEdited": false,
+      "isDeleted": false
+    },
+    {
+      "id": "1025343175189086239",
+      "author_di": "591622658177630210",
+      "author_username": "TereZa",
+      "content": "test 3",
+      "createAt": 1664531263978,
+      "type": 0,
+      "isEdited": false,
+      "isDeleted": false
+    }
+  ],
+  "replied": {
+    "isReplied": true
+  }
+}

@@ -1,14 +1,14 @@
-module.exports = (app, editor, crypto, cryption, path) => {
+module.exports = (app, Editor, fetch, crypto, cryption, dir, dotenv) => {
   const wait = require("node:timers/promises").setTimeout;
   const jwt = require("jsonwebtoken");
   const JsonEditor = require("edit-json-file");
-  const editorPW = JsonEditor(`${path}/../Config/userPassword.json`);
+  const editorPW = JsonEditor(`${dir}/../Config/userPassword.json`);
 
   app
     .route("/api/Register/:username/:password")
-    .get(async (request, result) => {
-      console.log(`\n${editor.get(`users.${request.params.username}`)}\n`);
-      if (editor.get(`users.${request.params.username}`)) {
+    .post(async (request, result) => {
+      console.log(`\n${Editor.get(`users.${request.params.username}`)}\n`);
+      if (Editor.get(`users.${request.params.username}`)) {
         return result.json({
           Error: `Data with Username: ${request.params.username} is Already Exist`,
         });
@@ -21,48 +21,53 @@ module.exports = (app, editor, crypto, cryption, path) => {
 
       const encrypted = require("../Function/Crypto/Encrypt")(password, crypto);
 
-      editor.set(`users.${userName}`, {
-        token: newToken,
+      editorPW.set(`users.${userName}`, {
+        key: encrypted[1],
+        create_at: Math.floor(new Date().getTime() / 1000),
+      });
+
+      await wait(500);
+
+      const jwtResult = jwt.sign(
+        { UserName: userName, token: newToken },
+        process.env.Users_Token,
+        {
+          expiresIn: `${Math.floor(
+            (expDate.setMonth(new Date().getMonth() + 3) -
+              new Date().getTime()) /
+              1000
+          )}s`,
+        }
+      );
+
+      Editor.set(`users.${userName}`, {
+        token: jwtResult,
         password: encrypted[0],
         create_at: Math.floor(new Date().getTime() / 1000),
         duration: Math.floor(expDate.setMonth(new Date().getMonth() + 3)),
         isExpire: false,
       });
 
-      editorPW.set(`users.${userName}`, {
-        key: encrypted[1],
-        create_at: Math.floor(new Date().getTime() / 1000),
-      });
       await wait(500);
-      editor.save();
+
+      Editor.save();
       editorPW.save();
 
-      jwt.sign(
-        {
-          exp: Math.floor(
-            (expDate.setMonth(new Date().getMonth() + 3) -
-              new Date().getTime()) /
-              1000
-          ),
-          data: userName,
-        },
-        newToken
-      );
-
+      await wait(2000);
       return result.json({
         UserName: userName,
-        Password: editor.get(`users.${userName}.password`),
-        Token: editor.get(`users.${userName}.token`),
+        Password: Editor.get(`users.${userName}.password`),
+        Token: Editor.get(`users.${userName}.token`),
         ExpireDate: `${new Date(
-          editor.get(`users.${userName}.duration`)
+          Editor.get(`users.${userName}.duration`)
         ).getDate()}-${new Date(
-          editor.get(`users.${userName}.duration`)
+          Editor.get(`users.${userName}.duration`)
         ).getMonth()}-${new Date(
-          editor.get(`users.${userName}.duration`)
+          Editor.get(`users.${userName}.duration`)
         ).getFullYear()} | ${new Date(
-          editor.get(`users.${userName}.duration`)
+          Editor.get(`users.${userName}.duration`)
         ).getHours()}:${new Date(
-          editor.get(`users.${userName}.duration`)
+          Editor.get(`users.${userName}.duration`)
         ).getMinutes()}`,
       });
     });
